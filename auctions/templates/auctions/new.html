@@ -1,0 +1,29 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+<h2 style="position: relative; left: 15px; font-weight:550;">Create Listing</h2>
+
+<form autocomplete="off" action="{% url 'new' %}" method="post" class="label-class">
+    {% csrf_token %}
+    <input type="text" name="title" placeholder="Title..." style="position: relative; top: 10px;">
+    <br>
+    <input type="number" name="price" placeholder="Price..." style="position: relative; top: 20px;">
+    <br>
+    <input type="text" name="description" placeholder="Description..." style="position: relative; top: 30px;">
+    <br>
+    <input type="text" name="image" placeholder="Image Name..." style="position: relative; top: 40px;">
+    <br>
+    <select name="category" style="position: relative; top: 50px;">
+        <option disabled selected value="">Category</option>
+        {% for category in categories %}
+        <option value="{{category}}">{{category}}</option>
+        {% endfor %}
+    </select>
+    <br>
+    <input style="position: relative; top: 60px;" type="submit" value="Create">
+</form>
+
+{% if message %}
+    <h2>{{ message }}</h2>
+{% endif %}
+{% endblock %}

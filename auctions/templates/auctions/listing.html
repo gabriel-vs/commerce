@@ -1,0 +1,84 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    {% if user.is_authenticated %}
+        <form action="{% url 'listing' auction.id %}" method="post">
+            {% csrf_token %}
+            {% if not watchlisted %}
+                    <input type="submit" value="Add to Watchlist" class="watchListBeforeClick">
+                    <input type="hidden" value="add" name="status">
+            {% endif %}
+            {% if watchlisted %}
+                    <input type="submit" value="Watchlist ✓" class="watchListAfterClick">
+                    <input type="hidden" value="remove" name="status">
+            {% endif %}
+            <input type="hidden" value="{{ auction.id }}" name="auctionId">
+        </form>
+
+        {% if auction.status == False %}
+            {% if userIsWinner %}
+                <h2 style="color: green; font-size: 25px; position: relative; left: 15px; top: 430px; font-weight: bold;">Congratulations! You won this auction.</h2>
+            {% else %}
+                <h2 style="color: brown; font-size: 25px; position: relative; left: 15px; top: 430px; font-weight: bold;">This auction was closed.</h2>
+            {% endif %}
+            
+        {% else %}
+            {% if highestBid %}
+                {% if userHasHighest %}
+                    <h2 style="position: absolute; left: 15px; top: 593px; font-size: 13px; font-family: Arial, Helvetica, sans-serif; font-weight: 600;">The current bid is yours.</h2>
+                {% else %}
+                    <h2 style="position: absolute; left: 15px; top: 593px; font-size: 13px; font-family: Arial, Helvetica, sans-serif; font-weight: 600;">The current bid is ${{ highestBid|floatformat:2 }}</h2>
+                {% endif %}
+            {% else %}
+                <h2 style="position: absolute; left: 15px; top: 593px; font-size: 13px; font-family: Arial, Helvetica, sans-serif; font-weight: 600;">No bids yet.</h2>
+            {% endif %}
+
+            <form class="bidForm" action="{% url 'listing' auction.id %}" method="post">
+                {% csrf_token %}
+                {% if highestBid %}
+                    <input type="number" name="bid" min="{{ highestBid }}" style="width: 45cm" placeholder="Bid">
+                {% else %}
+                    <input type="number" name="bid" min="{{ auction.price }}" style="width: 45cm" placeholder="Bid">
+                {% endif %}
+                <input type="submit" value="Place Bid" style="position: relative; top: 40px; right: 1705px;">
+                <input type="hidden" value="{{ auction.id }}" name="auctionId">
+            </form>
+
+            <h2 style="position: absolute; font-weight: 600; font-size: 25px; left: 15px; top: 705px;">Details</h2>
+            <h2 style="position: absolute; font-size: 17px; left: 25px; top: 740px;">Listed by: {{ auction.user }}</h2>
+            <h2 style="position: absolute; font-size: 17px; left: 25px; top: 765px; display: inline-block;">Category: </h2>
+            <a href="{% url 'category_listing' auction.category %}" style="position: absolute; font-size: 17px; left: 101px; top: 763px;">{{ auction.category }}</a>
+
+            {% if userIsCreator %}
+                <form action="{% url 'listing' auction.id %}" method="post">
+                    {% csrf_token %}
+                    <input type="submit" value="Close Auction" class="closeButton">
+                    <input type="hidden" value="close" name="closeStatus">
+                    <input type="hidden" value="{{ auction.id }}" name="auctionId">
+                </form>
+            {% endif %}
+            
+            <h2 style="position: absolute; font-weight: 600; font-size: 25px; left: 15px; top: 810px;">Comments</h2>
+
+            <form action="{% url 'listing' auction.id %}" method="post" class="commentForm">
+                {% csrf_token %}
+                <input type="text" name="userComment" placeholder="Add a public comment..." style="width: 1705px;">
+                <input type="submit" value="Comment" style="position: absolute; left: 1624px; top: 40px;">
+                <input type="hidden" value="{{ auction.id }}" name="auctionId">
+            </form>
+
+            {% if comments %}
+                {% for comment in comments %}
+                    <h2 style="position: relative; left: 15px; top: 720px; font-size: 20px;">{{comment.comment}}</h2>
+                    <h2 style="position: relative; left: 15px; top: 710px; font-size: 15px; color: rgb(100, 100, 100);">by {{comment.user}}</h2>
+                {% endfor %}
+            {% endif %}
+
+        {% endif %}
+
+    {% endif %}
+    <h2 style="font-family: Arial, Helvetica, sans-serif; font-size: 25px; font-weight: bold; position: absolute; top: 150px; left: 15px;">{{auction.title}}</h2>
+    <img src="../media/{{auction.image}}" style="position: absolute; top: 230px;">
+    <h2 style="font-family: Arial, Helvetica, sans-serif; font-size: 18px; position: absolute; top: 505px; left: 15px;">{{auction.description}}</h2>
+    <h2 style="font-family: Arial, Helvetica, sans-serif; font-size: 30px; position: absolute; font-weight: 600; left: 15px; top: 550px;">${{auction.price|floatformat:2}}</h2>
+{% endblock %}

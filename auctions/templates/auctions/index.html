@@ -1,0 +1,17 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2 style="position: relative; left: 15px; font-weight:550;">Active Listings</h2>
+
+    {% for auction in auctions %}
+        <div class="item">
+            <img src="media/{{auction.image}}">
+            <div class="spec">
+                <a class="toListing" href="{% url 'listing' auction.id %}">{{auction.title}}</a>
+                <h2 style="font-size: 18px; font-weight: bold; display: inline-block;">Price:</h2>
+                <h2 style="font-size: 17px; display: inline-block;">${{auction.price|floatformat:2}}</h2>
+                <h2 style="font-size: 16px;">{{auction.description}}</h2>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}
